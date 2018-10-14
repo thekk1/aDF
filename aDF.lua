@@ -1,5 +1,6 @@
 --########### armor and Debuff Frame
 --########### By Atreyyo @ Vanillagaming.org
+--
 
 aDF = CreateFrame('Button', "aDF", UIParent); -- Event Frame
 aDF.Options = CreateFrame("Frame",nil,UIParent) -- Options frame
@@ -20,25 +21,53 @@ gui_chantbl = {
    "Raid",
    "Raid_Warning"
  }
+ local resistance = {
+   "Armor: ",
+   "Holy: ",
+   "Fire: ",
+   "Nature: ",
+   "Frost: ",
+   "Shadow: ",
+   "Arcane: "
+ }
 
 -- translation table for debuff check on target
 
-aDFSpells = {
-	["Sunder Armor"] = "Sunder Armor",
-	["Armor Shatter"] = "Armor Shatter",
-	["Faerie Fire"] = "Faerie Fire",
-	["Crystal Yield"] = "Crystal Yield",
-	["Nightfall"] = "Spell Vulnerability",
-	["Scorch"] = "Fire Vulnerability",
-	["Ignite"] = "Ignite",
-	["Curse of Recklessness"] = "Curse of Recklessness",
-	["Curse of the Elements"] = "Curse of the Elements",
-	["Curse of Shadows"] = "Curse of Shadow",
-	["Shadow Bolt"] = "Shadow Vulnerability",
-	["Shadow Weaving"] = "Shadow Weaving",
-	["Mage T3 6/9 Bonus"] = "Elemental Vulnerability",
-	["Vampiric Embrace"] = "Vampiric Embrace", 
-}
+if (GetLocale() == "deDE") then
+	aDFSpells = {
+		["Sunder Armor"] = "R\195\188stung zerrei\195\159en",
+		["Armor Shatter"] = "R\195\188stungszertr\195\188mmerung",
+		["Faerie Fire"] = "Feenfeuer",
+		["Crystal Yield"] = "Kristallschw\195\164cher",
+		["Nightfall"] = "Zauber-Verwundbarkeit",
+		["Scorch"] = "Versengen",
+		["Ignite"] = "Entzünden",
+		["Curse of Recklessness"] = "Fluch der Tollk\195\188hnheit",
+		["Curse of the Elements"] = "Fluch der Elemente",
+		["Curse of Shadows"] = "Fluch der Schatten",
+		["Shadow Bolt"] = "Schatten-Verwundbarkeit",
+		["Shadow Weaving"] = "Shadow Weaving",
+		["Mage T3 6/9 Bonus"] = "Elementarverwundbarkeit",
+		["Vampiric Embrace"] = "Vampirumarmung", 
+	}
+else
+	aDFSpells = {
+		["Sunder Armor"] = "Sunder Armor",
+		["Armor Shatter"] = "Armor Shatter",
+		["Faerie Fire"] = "Faerie Fire",
+		["Crystal Yield"] = "Crystal Yield",
+		["Nightfall"] = "Spell Vulnerability",
+		["Scorch"] = "Fire Vulnerability",
+		["Ignite"] = "Ignite",
+		["Curse of Recklessness"] = "Curse of Recklessness",
+		["Curse of the Elements"] = "Curse of the Elements",
+		["Curse of Shadows"] = "Curse of Shadow",
+		["Shadow Bolt"] = "Shadow Vulnerability",
+		["Shadow Weaving"] = "Shadow Weaving",
+		["Mage T3 6/9 Bonus"] = "Elemental Vulnerability",
+		["Vampiric Embrace"] = "Vampiric Embrace", 
+	}
+end
 
 -- table with names and textures 
 
@@ -104,7 +133,7 @@ function aDF:Init()
 	self:SetHeight(24+gui_Optionsxy) -- for your Texture
 	self:SetPoint("CENTER",aDF_x,aDF_y)
 	self:SetMovable(1)
-	self:EnableMouse(1)
+	self:EnableMouse(false)
 	self:RegisterForDrag("LeftButton")
 	self:SetBackdrop(backdrop) --border around the frame
 	self:SetBackdropColor(0,0,0,1)
@@ -123,14 +152,14 @@ function aDF:Init()
 	-- Armor text
 	self.armor = self:CreateFontString(nil, "OVERLAY")
     self.armor:SetPoint("CENTER", self, "CENTER", 0, 0)
-    self.armor:SetFont("Fonts\\FRIZQT__.TTF", 24+gui_Optionsxy)
+    self.armor:SetFont("Fonts\\FRIZQT__.TTF", 15+gui_Optionsxy)
 	self.armor:SetShadowOffset(2,-2)
     self.armor:SetText("aDF")
 
 	-- Resistance text
 	self.res = self:CreateFontString(nil, "OVERLAY")
     self.res:SetPoint("CENTER", self, "CENTER", 0, 20+gui_Optionsxy)
-    self.res:SetFont("Fonts\\FRIZQT__.TTF", 14+gui_Optionsxy)
+    self.res:SetFont("Fonts\\FRIZQT__.TTF", 10+gui_Optionsxy)
 	self.res:SetShadowOffset(2,-2)
     self.res:SetText("Resistance")
 	
@@ -200,7 +229,7 @@ function aDF.Create_frame(name)
 	frame.icon:SetPoint('BOTTOMRIGHT', -1, 1)
 	frame.nr = frame:CreateFontString(nil, "OVERLAY")
 	frame.nr:SetPoint("CENTER", frame, "CENTER", 0, 0)
-	frame.nr:SetFont("Fonts\\FRIZQT__.TTF", 16+gui_Optionsxy)
+	frame.nr:SetFont("Fonts\\FRIZQT__.TTF", 10+gui_Optionsxy)
 	frame.nr:SetTextColor(255, 255, 0, 1)
 	frame.nr:SetShadowOffset(2,-2)
 	frame.nr:SetText("1")
@@ -212,10 +241,16 @@ end
 
 function aDF:Update()
 	if aDF_target ~= nil then
+		local _,totalArmor = UnitResistance(aDF_target,0);
+		local _,totalFr = UnitResistance(aDF_target,2);
+		local _,totalNr = UnitResistance(aDF_target,3);
+		local _,totalFrR = UnitResistance(aDF_target,4);
+		local _,totalSr = UnitResistance(aDF_target,5);
 --		aDF.armor:SetText(UnitResistance(aDF_target,0).." ["..math.floor(((UnitResistance(aDF_target,0) / (467.5 * UnitLevel("player") + UnitResistance(aDF_target,0) - 22167.5)) * 100),1).."%]")
-		aDF.armor:SetText(UnitResistance(aDF_target,0))
+--		aDF.armor:SetText(UnitResistance(aDF_target,0))
+		aDF.armor:SetText(UnitResistance(aDF_target,0) .. " [" .. tonumber(string.format("%.2f",(totalArmor/(totalArmor+400+85*UnitLevel("player")))*100)) .. "%]")
 		if gui_Options["Resistances"] == 1 then
-			aDF.res:SetText("|cffFF0000FR "..UnitResistance(aDF_target,2).." |cff00FF00NR "..UnitResistance(aDF_target,3).." |cff4AE8F5FrR "..UnitResistance(aDF_target,4).." |cff800080SR "..UnitResistance(aDF_target,5))
+			aDF.res:SetText("|cffFF0000FR "..totalFr.." |cff00FF00NR "..totalNr.." |cff4AE8F5FrR "..totalFrR.." |cff800080SR "..totalSr)
 		else
 			aDF.res:SetText("")
 		end
@@ -317,7 +352,7 @@ function aDF.Options:Gui()
 	
 	self.text = self:CreateFontString(nil, "OVERLAY")
     self.text:SetPoint("CENTER", self, "CENTER", 0, 180)
-    self.text:SetFont("Fonts\\FRIZQT__.TTF", 25)
+    self.text:SetFont("Fonts\\FRIZQT__.TTF", 20)
 	self.text:SetTextColor(255, 255, 0, 1)
 	self.text:SetShadowOffset(2,-2)
     self.text:SetText("Options")
@@ -359,7 +394,7 @@ function aDF.Options:Gui()
 		end
 		aDF:SetWidth((24+gui_Optionsxy)*7)
 		aDF:SetHeight(24+gui_Optionsxy)
-		aDF.armor:SetFont("Fonts\\FRIZQT__.TTF", 24+gui_Optionsxy)
+		aDF.armor:SetFont("Fonts\\FRIZQT__.TTF", 20+gui_Optionsxy)
 		aDF.res:SetFont("Fonts\\FRIZQT__.TTF", 14+gui_Optionsxy)
 		aDF.res:SetPoint("CENTER", aDF, "CENTER", 0, 20+gui_Optionsxy)
 		aDF:Sort()
@@ -814,7 +849,7 @@ function aDF:GetDebuff(name,buff,stacks)
 		aDF_tooltip:ClearLines()
    		aDF_tooltip:SetUnitDebuff(name,a)
 		local aDFtext = aDF_tooltipTextL:GetText()
-		if string.find(aDFtext,buff) then 
+		if buff and string.find((aDFtext or ""),buff) then 
 			if stacks == 1 then
 				return s
 			else
@@ -840,6 +875,7 @@ function aDF:OnEvent()
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf show|r to show frame",1,1,1)
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf hide|r to hide frame",1,1,1)
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf options|r for options frame",1,1,1)
+		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf lock|r for lock/unluck frame moving",1,1,1)
 	end
 	if event == "UNIT_AURA" then
 		aDF:Update()
@@ -868,6 +904,7 @@ function aDF.slash(arg1,arg2,arg3)
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf show|r to show frame",1,1,1)
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf hide|r to hide frame",1,1,1)
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf options|r for options frame",1,1,1)
+		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf lock|r for lock/unluck frame moving",1,1,1)
 		else
 		if arg1 == "show" then
 			aDF:Show()
@@ -875,6 +912,12 @@ function aDF.slash(arg1,arg2,arg3)
 			aDF:Hide()
 		elseif arg1 == "options" then
 			aDF.Options:Show()
+		elseif arg1 == "lock" then
+			if aDF:IsMouseEnabled() then
+				aDF:EnableMouse(false)
+			else
+				aDF:EnableMouse(true)
+			end
 		else
 			DEFAULT_CHAT_FRAME:AddMessage(arg1)
 			DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r unknown command",1,0.3,0.3);
@@ -888,6 +931,6 @@ SLASH_ADF_SLASH2 = '/ADF'
 
 -- debug
 
-function print(arg1)
-	DEFAULT_CHAT_FRAME:AddMessage("|cffCC121D debug|r "..arg1)
+local function print(msg)
+  DEFAULT_CHAT_FRAME:AddMessage("|cffcccc33INFO: |cffffff55" .. ( msg or "nil" ))
 end
